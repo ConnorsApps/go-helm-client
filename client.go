@@ -11,6 +11,7 @@ import (
 	"strings"
 
 	"golang.org/x/exp/slices"
+	helmStorage "helm.sh/helm/v3/pkg/storage"
 
 	"k8s.io/apimachinery/pkg/api/errors"
 
@@ -464,6 +465,12 @@ func (c *HelmClient) lint(chartPath string, values map[string]interface{}) error
 
 // TemplateChart returns a rendered version of the provided ChartSpec 'spec' by performing a "dry-run" install.
 func (c *HelmClient) TemplateChart(spec *ChartSpec, options *HelmTemplateOptions) ([]byte, error) {
+	ogReleases := c.ActionConfig.Releases
+	c.ActionConfig.Releases = &helmStorage.Storage{}
+	defer func() {
+		c.ActionConfig.Releases = ogReleases
+	}()
+
 	client := action.NewInstall(c.ActionConfig)
 	mergeInstallOptions(spec, client)
 
