@@ -466,7 +466,7 @@ func (c *HelmClient) lint(chartPath string, values map[string]interface{}) error
 // TemplateChart returns a rendered version of the provided ChartSpec 'spec' by performing a "dry-run" install.
 func (c *HelmClient) TemplateChart(spec *ChartSpec, options *HelmTemplateOptions) ([]byte, error) {
 	ogReleases := c.ActionConfig.Releases
-	c.ActionConfig.Releases = &helmStorage.Storage{}
+	c.ActionConfig.Releases = helmStorage.Init(ogReleases.Driver)
 	defer func() {
 		c.ActionConfig.Releases = ogReleases
 	}()
